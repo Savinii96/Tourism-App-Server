@@ -1,0 +1,23 @@
+{
+  "name": "tourism-app",
+  "version": "1.0.0",
+  "description": "Research",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "cors": "*",
+    "express": "*",
+    "jsonwebtoken": "*",
+    "mongoose": "*",
+    "nodemon": "^1.19.0",
+    "passport": "*",
+    "passport-jwt": "*"
+  },
+  "author": "Savini Amarasinghe",
+  "license": "ISC"
+}
