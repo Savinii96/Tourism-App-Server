@@ -58,7 +58,7 @@ const AttractionSchema = mongoose.Schema({
         required: false
     },
     imageBase64: {
-        type: String,
+        type: Array,
         required: false
     },
     approved: {

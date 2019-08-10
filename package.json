@@ -16,7 +16,9 @@
     "mongoose": "*",
     "nodemon": "^1.19.0",
     "passport": "*",
-    "passport-jwt": "*"
+    "passport-jwt": "*",
+    "sendmail": "^1.6.1",
+    "sentiment": "^5.0.1"
   },
   "author": "Savini Amarasinghe",
   "license": "ISC"

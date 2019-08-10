@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const Attraction = require('../models/newAtt');
-
+const Review = require('../models/review');
+var Sentiment = require('sentiment');
+var sentiment = new Sentiment();
 //newAtt
 router.post('/add', (req, res, next) => {
 
@@ -37,13 +39,47 @@ router.post('/add', (req, res, next) => {
 });
 
 
-router.get('/getAll', (req, res, next) => {
+router.get('/getAll', async (req, res, next) => {
 
-    Attraction.getAllAttractions((error, item) => {
+    Attraction.getAllAttractions(async (error, item) => {
         if (error) {
             return res.json({ success: false, msg: 'Failed to get attraction. Error: ' + error });
         } else {
-            return res.json({ success: true, msg: 'Success', item: item });
+
+            var arrayAtt = [];
+            // console.log(arrayAtt);
+            item.forEach(async element => {
+                await Review.getReviewByID(element._id, (error1, item1) => {
+                    if (error1) {
+                        return res.json({ success: false, msg: 'Failed to get Review . Error: ' + error });
+                    } else {
+                        var obj = { ...element }
+                        obj._doc["positive"] = 0;
+                        obj._doc["negative"] = 0;
+                        // obj._doc["total"] = item1.length;
+                        item1.forEach(el => {
+                            var result = sentiment.analyze(el.description);
+                            if (result.score > 0) {
+                                obj._doc["positive"]++
+
+                            } else if (result.score < 0) {
+                                obj._doc["negative"]++
+                            }
+                        })
+
+                        obj._doc["positive"] = (obj._doc["positive"] / item1.length * 100).toFixed(2);
+                        obj._doc["negative"] = (obj._doc["negative"] / item1.length * 100).toFixed(2);
+
+
+                        arrayAtt.push(obj._doc)
+                        if (arrayAtt.length == item.length) {
+                            return res.json({ success: true, msg: 'Success', item: arrayAtt });
+
+                        }
+                    }
+                });
+            })
+
         }
     });
 });
@@ -51,7 +87,7 @@ router.get('/getAll', (req, res, next) => {
 
 router.get('/get/:id', (req, res, next) => {
 
-    Attraction.getByID(req.params.id,(error, item) => {
+    Attraction.getByID(req.params.id, (error, item) => {
         if (error) {
             return res.json({ success: false, msg: 'Failed to get attraction. Error: ' + error });
         } else {
@@ -69,6 +105,17 @@ router.put('/accept', (req, res, next) => {
         if (error) {
             return res.json({ success: false, msg: 'Failed to accept Attraction. Error: ' + error });
         } else {
+            var sendmail = require('sendmail')({ silent: true })
+
+            sendmail({
+                from: 'test@yourdomain.com',
+                to: email,
+                subject: 'MailComposer sendmail',
+                html: 'Mail of test sendmail '
+            }, function (err, reply) {
+                console.log(err && err.stack)
+                console.dir(reply)
+            })
             return res.json({ success: true, msg: 'Attraction accepted', item: item });
         }
 
